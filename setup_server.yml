@@ -1,0 +1,14 @@
+---
+# Setup Debian 11 x64 server
+
+- name: Setup server
+  hosts: servers
+  become: yes
+
+  tasks:
+    - name: Create a new regular user
+      user:
+        name: phprio
+        password: '{{ phprio_user_password }}'
+        groups: sudo
+

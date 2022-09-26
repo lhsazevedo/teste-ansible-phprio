@@ -1,0 +1,5 @@
+servers:
+  hosts:
+    phprio01:
+      ansible_host: 203.0.113.1 # IP de exemplo
+      ansible_user: root

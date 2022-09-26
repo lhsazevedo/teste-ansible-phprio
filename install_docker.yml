@@ -1,0 +1,58 @@
+---
+# Setup Docker Engine CE on Debian 11 x64
+# TODO: Use community docker plugin. See https://docs.ansible.com/ansible/latest/collections/community/docker/docsite/scenario_guide.html
+
+- name: Setup docker
+  hosts: servers
+  become: yes
+
+  tasks:
+    - name: Install Docker prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+        update_cache: yes
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+
+    - name: Check fingerprint
+      shell: "apt-key fingerprint 0EBFCD88"
+
+    - name: Add repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ansible_distribution_release}} stable"
+
+    - name: Install Docker prerequisites
+      apt:
+        name: docker-ce
+        update_cache: yes
+      debugger: on_failed
+
+    # Post installation steps
+    # https://docker-docs.netlify.app/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
+
+    - name: Create docker group
+      group:
+        name: docker
+    
+    - name: Add user phprio to docker group
+      user:
+        name: phprio
+        groups: docker
+        append: yes
+
+    - name: Start Docker on boot
+      systemd:
+        name: docker
+        enabled: yes
+
+    - name: Test Docker installation
+      shell: docker run hello-world
+      become: yes
+      become_user: phprio
